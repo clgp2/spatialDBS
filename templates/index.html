@@ -1,0 +1,76 @@
+<html>
+
+<head>
+  <meta charset=utf-8 />
+  <title>A Leaflet map!</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+    crossorigin="" />
+
+  <!-- Make sure you put this AFTER Leaflet's CSS -->
+  <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+    crossorigin=""></script>
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+
+  <div class="slidecontainer">
+    <input type="range" min="1" max="3" value="2" class="slider" onchange="get_map(this.value)" oninput="get_map(this.value)">
+  </div>
+
+  <div id="map"></div>
+
+  <script>
+
+    // initialize the map
+    var map = L.map('map').setView([52.52, 13.38], 11);
+
+    // load a tile layer
+    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+      attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+      maxZoom: 18,
+      id: 'mapbox.streets',
+      accessToken: 'pk.eyJ1IjoiYmVybmFjbGdwIiwiYSI6ImNqYnhuNTdtNTJyazIzM3I2em9ybndidnIifQ.EvdseipriGZxA6nSj92U8w'
+    }).addTo(map);
+
+    function get_map(value) {
+      // initialize the map
+
+      $.getJSON('/json/' + value, function (data) {
+        // add GeoJSON layer to the map once the file is loaded
+        L.geoJson(data, {
+          style:
+            function (feature) {
+              var fillColor,
+                BEZ = feature.properties.BEZ;
+              if (BEZ == 01) fillColor = "#238b45";
+              else if (BEZ == 02) fillColor = "#41ae76";
+              else if (BEZ == 03) fillColor = "#78c679";
+              else if (BEZ == 04) fillColor = "#78c679";
+              else if (BEZ == 05) fillColor = "#238b45";
+              else if (BEZ == 06) fillColor = "#005824";
+              else if (BEZ == 07) fillColor = "#99d8c9";
+              else if (BEZ == 08) fillColor = "#78c679";
+              else if (BEZ == 09) fillColor = "#66c2a4";
+              else if (BEZ == 10) fillColor = "#41ae76";
+              else if (BEZ == 11) fillColor = "#99d8c9";
+              else if (BEZ == 12) fillColor = "#005824";
+              else fillColor = "#f7f7f7";  // no data
+              return { color: "#999", weight: 1, fillColor: fillColor, fillOpacity: .6 };
+            },
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup("<strong>" + feature.properties.UWB + "</strong><br/>" + feature.properties.BEZ + " Name des Wahlkreises")
+          }
+        }).addTo(map);
+      });
+
+    }
+
+
+  </script>
+</body>
+
+</html>
