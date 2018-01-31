@@ -18,7 +18,7 @@
 <body>
 
   <div class="slidecontainer">
-    <input type="range" min="1" max="3" value="2" class="slider" onchange="get_map(this.value)" oninput="get_map(this.value)">
+    <input type="range" min="1" max="3" value="2" class="slider" onchange="get_map(this.value)">
   </div>
 
   <div id="map"></div>
@@ -27,7 +27,7 @@
 
     // initialize the map
     var map = L.map('map').setView([52.52, 13.38], 11);
-
+    var layer = 0;
     // load a tile layer
     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
       attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
@@ -41,7 +41,11 @@
 
       $.getJSON('/json/' + value, function (data) {
         // add GeoJSON layer to the map once the file is loaded
-        L.geoJson(data, {
+        if (layer !== 0) {
+          layer.clearLayers();
+          map.removeLayer(layer);
+        }
+        layer = L.geoJson(data, {
           style:
             function (feature) {
               var fillColor,
@@ -64,7 +68,11 @@
           onEachFeature: function (feature, layer) {
             layer.bindPopup("<strong>" + feature.properties.UWB + "</strong><br/>" + feature.properties.BEZ + " Name des Wahlkreises")
           }
-        }).addTo(map);
+        })
+
+        layer.addTo(map)
+
+
       });
 
     }
